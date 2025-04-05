@@ -49,7 +49,7 @@ jobs:
         esac
 
     - name: Save the built app (${{ matrix.platform }})
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4 # Or try @v2
       with:
         name: ${{ matrix.platform }}-app
         path: |
