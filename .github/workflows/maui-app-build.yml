@@ -24,7 +24,7 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x' # Replace with your MAUI framework version
+        dotnet-version: '9.0.0' # Replace with your MAUI framework version
 
     - name: Restore project dependencies
       run: dotnet restore
