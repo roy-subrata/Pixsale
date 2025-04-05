@@ -33,7 +33,7 @@ jobs:
 
     - name: Sign and Package Android App
       run: |
-        msbuild src/Services/Pixsale.App.csproj /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=True /p:AndroidSigningKeyStore=android.keystore /p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" /p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}" /p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
+        msbuild src/Services/Pixsale.App/Pixsale.App.csproj /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=True /p:AndroidSigningKeyStore=android.keystore /p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" /p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}" /p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
 
     - name: Save the built app (android)
       uses: actions/upload-artifact@v4 # Or try @v2
