@@ -31,7 +31,7 @@ jobs:
         run: dotnet publish src/Services/Pixsale.App/Pixsale.App.csproj -f net9.0-windows10.0.19041.0 -c Release
         
       - name: Upload Windows publish artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: windows-publish-artifacts
           path: src/Services/Pixsale.App/bin/Release/net9.0-windows/publish/
@@ -55,7 +55,7 @@ jobs:
         run: dotnet publish src/Services/Pixsale.Web/Pixsale.Web.csproj -f net9.0 -c Release
         
       - name: Upload Web publish artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: blazor-web-publish-artifacts
           path: src/Services/Pixsale.Web/bin/Release/net9.0/publish/
@@ -79,7 +79,7 @@ jobs:
         run: dotnet publish src/Services/Pixsale.App/Pixsale.App.csproj -f net9.0-android -c Release -p:AndroidPackageFormat=apk
         
       - name: Upload Android publish artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: android-publish-artifacts
           path: src/Services/Pixsale.App/bin/Release/net9.0-android/publish/
