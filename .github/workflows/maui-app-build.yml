@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-publish-artifacts
-          path: src/Services/Pixsale.App/bin/Release/net9.0-windows/publish/
+          path: src/Services/Pixsale.App/bin/Release/net9.0-windows10.0.19041.0/publish/
 
   build-web:
     runs-on: windows-latest
