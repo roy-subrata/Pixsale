@@ -1,43 +1,67 @@
-name: Build MAUI App (Android Only)
+name: Build MAUI App
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "**/*.gitignore"
+      - "**/*.gitattributes"
+      - "**/*.yml"
 
 jobs:
-  build-and-package-android:
-    name: Build and Package Android
+  build-windows:
     runs-on: windows-latest
-
+    name: 🔵 Build Windows
     steps:
-    - name: Get the code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Set up .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x' # Replace with your MAUI framework version
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x" # or 7.0.x if your MAUI version is older
 
-    - name: Restore project dependencies
-      run: dotnet restore
+      - name: Install MAUI Workload
+        run: dotnet workload install maui
 
-    - name: Build Android App
-      run: dotnet build -c Release -f net9.0-android
+      - name: Build for Windows
+        run: dotnet publish src/service/Pixsale.App/Pixsale.App.csproj -f net9.0-windows10.0.19041.0 -c Release
 
-    - name: Decode Android Keystore
-      shell: bash
-      run: |
-        echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android.keystore
+  build-web:
+    runs-on: ubuntu-latest
+    name: 🌐 Build Web (Blazor WASM)
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Sign and Package Android App
-      run: |
-        msbuild src/Services/Pixsale.App/Pixsale.App.csproj /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=aab /p:AndroidKeyStore=True /p:AndroidSigningKeyStore=android.keystore /p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" /p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}" /p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
 
-    - name: Save the built app (android)
-      uses: actions/upload-artifact@v4 # Or try @v2
-      with:
-        name: android-app
-        path: |
-          ./bin/Release/*/*.apk
+      - name: Install MAUI Workload
+        run: dotnet workload install maui
+
+      - name: Build Blazor WebAssembly
+        run: dotnet publish src/service/Pixsale.Web/Pixsale.Web.csproj -f net9.0 -c Release
+
+  build-android:
+    runs-on: windows-latest
+    name: 🤖 Build Android
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Install MAUI + Android Workload
+        run: dotnet workload install maui-android
+
+      - name: Build Android APK
+        run: dotnet publish src/service/Pixsale.App/Pixsale.App.csproj -f net9.0-android -c Release -p:AndroidPackageFormat=apk
