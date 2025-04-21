@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pixsale.Shared.Services;
 using Pixsale.Services;
+using MudBlazor.Services;
 
 namespace Pixsale;
 
@@ -20,7 +21,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IFormFactor, FormFactor>();
 
         builder.Services.AddMauiBlazorWebView();
-
+        builder.Services.AddMudServices();
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();

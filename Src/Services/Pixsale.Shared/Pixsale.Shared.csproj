@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="NewFolder\**" />
+    <Content Remove="NewFolder\**" />
+    <EmbeddedResource Remove="NewFolder\**" />
+    <None Remove="NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="tailwind.config.js" />
   </ItemGroup>
 
@@ -21,6 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
+	  <PackageReference Include="MudBlazor" Version="7.0.0" />
   </ItemGroup>
 	<Target Name="BuildTailwind" BeforeTargets="Build">
 		<Exec Command="npm run build:css" />

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pixsale.Shared\Pixsale.Shared.csproj" />
+	  <PackageReference Include="MudBlazor" Version="8.5.1" />
   </ItemGroup>
 
 </Project>

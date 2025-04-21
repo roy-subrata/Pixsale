@@ -1,11 +1,10 @@
 ﻿/** @type {import('tailwindcss').Config} */
 export default {
     content: [
-        //"./Pages/**/*.{razor,cshtml}",
-        //"./Layout/**/*.{razor,cshtml}",
-        //"./Components/**/*.{razor,cshtml}",
+        //'./**/*.{razor,html}', // Scan Razor and HTML files in Shared
         //"./wwwroot/**/*.{html,js}",
-        //"../Pixsale.Web/Components/**/*.{razor,cshtml}",
+        //"../Pixsale.Web/**/*.{razor,cshtml}",
+        //"../Pixsale.App/**/*.{razor,cshtml}",
     ],
     theme: {
         extend: {}
