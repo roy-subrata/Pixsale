@@ -1,0 +1,131 @@
+﻿@page "/customers"
+
+<div class="flex items-center space-x-3 text-xl font-semibold text-gray-800">
+	<button @onclick="GoBack" class="text-tata hover:text-blue-900 focus:outline-none">
+		←
+	</button>
+	<h2>Home</h2>
+</div>
+
+<!-- Search -->
+<div class="p-4">
+	<input type="text"
+		   placeholder="Search"
+		   class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+		   @bind="searchText" />
+</div>
+
+<!-- Customer Card -->
+<div class="px-4">
+	@foreach (var customer in customers)
+	{
+		<div class="flex items-center justify-between bg-purple-100 p-4 rounded-lg mb-4">
+			<div class="flex items-center space-x-3">
+				<img src="https://via.placeholder.com/50x50.png?text=No+Image"
+					
+					 class="w-12 h-12 rounded-full" />
+				<div>
+					<p class="text-sm font-semibold">@customer.Name</p>
+					<p class="text-xs text-gray-600">@customer.Phone</p>
+				</div>
+			</div>
+			<div class="flex items-center space-x-4">
+				<p class="text-sm font-semibold">৳ 0</p>
+				<div class="relative">
+					<button @onclick="() => ToggleDropdown(customer)" class="text-2xl">⋮</button>
+					@if (isDropdownVisible && selectedCustomer == customer)
+					{
+						<div class="absolute right-0 mt-2 w-32 bg-white border border-gray-300 rounded shadow-lg">
+							<button @onclick="() => EditCustomer(customer)" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Edit</button>
+							<button @onclick="() => ViewDetails(customer)" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Details</button>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	}
+</div>
+
+
+<!-- Add New Customet Button -->
+<div class="fixed bottom-4 left-0 right-0 px-4">
+	<button @onclick="AddNewProduct"
+			class="w-full bg-purple-700 text-white py-3 rounded-lg text-sm font-medium shadow-md hover:bg-purple-800">
+		Add New Customer +
+	</button>
+</div>
+@code {
+	protected string searchText;
+	[Inject] NavigationManager NavigationManager { get; set; }
+	[Inject] CustomerClient CustomerClient { get; set; }
+	protected List<CustomerDto> customers = new();
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		var customers = await CustomerClient.GetAllCustomerAsync();
+		this.customers = customers
+		.Select(cust => new CustomerDto(cust.Name, cust.Phone, cust.Address)).ToList();
+	}
+
+	protected void GoBack()
+	{
+		NavigationManager.NavigateTo("/"); // Or use your intended back route
+	}
+
+	public void AddNewProduct()
+	{
+		NavigationManager.NavigateTo("/customer-entry");
+	}
+	private bool isDropdownVisible;
+
+	private void ToggleDropdown()
+	{
+		isDropdownVisible = !isDropdownVisible;
+	}
+
+	private void EditCustomer()
+	{
+		isDropdownVisible = false;
+		// Navigate to edit customer page or perform edit logic
+		NavigationManager.NavigateTo("/customer-entry");
+	}
+
+	private void ViewDetails()
+	{
+		isDropdownVisible = false;
+		// Navigate to customer details page or perform details logic
+		NavigationManager.NavigateTo("/customer-detail");
+	}
+	private CustomerDto selectedCustomer;
+
+	private void ToggleDropdown(CustomerDto customer)
+	{
+		if (selectedCustomer == customer)
+		{
+			isDropdownVisible = !isDropdownVisible;
+		}
+		else
+		{
+			selectedCustomer = customer;
+			isDropdownVisible = true;
+		}
+	}
+
+	private void EditCustomer(CustomerDto customer)
+	{
+		isDropdownVisible = false;
+		// Navigate to edit customer page or perform edit logic
+		NavigationManager.NavigateTo($"/customer-entry/{customer.Name}");
+	}
+
+	private void ViewDetails(CustomerDto customer)
+	{
+		isDropdownVisible = false;
+		// Navigate to customer details page or perform details logic
+		NavigationManager.NavigateTo($"/customer-detail/{customer.Name}");
+	}
+
+	protected record CustomerDto(string Name, string Phone, String Address);
+}

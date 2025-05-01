@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Pixsale.Domain.Entities;
+using Pixsale.Domain.EntityMapping;
 
 namespace Pixsale.Infrastructure
 {
@@ -23,10 +24,19 @@ namespace Pixsale.Infrastructure
         public DbSet<Quotation> Quotations { get; set; }
         public DbSet<QuotationDetail> QuotationDetails { get; set; }
         public DbSet<WarrantyClaim> WarrantyClaims { get; set; }
+        public DbSet<Unit> Units { get; set; }
+
+        public DbSet<Branch> Branches { get; set; }
+        public DbSet<Warehouse> Warehouses { get; set; }
+        public DbSet<ProductLocation> ProductLocations { get; set; }
+        public DbSet<BranchWarehouse> BranchWarehouses { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfiguration(new BranchWarehouseConfiguration());
 
             // Apply configurations for AuditableEntity
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())

@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Pixsale.Infrastructure;
 using Scalar.AspNetCore;
 

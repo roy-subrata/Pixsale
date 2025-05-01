@@ -1,0 +1,142 @@
+﻿@page "/customer-entry"
+@using Pixsale.Shared.Clients
+
+<div class="flex items-center space-x-3 text-xl font-semibold text-gray-800 mb-4">
+    <button @onclick="GoBack" class="text-tata hover:text-blue-900 focus:outline-none">←</button>
+    <h2>Customers</h2>
+</div>
+
+<div class="p-6 mt-5 bg-white rounded-2xl shadow space-y-6">
+    <!-- Product Name -->
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+        <input @bind="CustomerModel.Name" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Customer Phone</label>
+        <input @bind="CustomerModel.Phone" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+        <select @bind="CustomerModel.Gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata">
+            <option value="">Select gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+        </select>
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input @bind="CustomerModel.Email" type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+    </div>
+
+    @* Identification & Address *@
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">National ID</label>
+        <input @bind="CustomerModel.NationalId" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+        <input @bind="CustomerModel.Address" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+        <input @bind="CustomerModel.City" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+        <input @bind="CustomerModel.Country" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Zipcode</label>
+        <input @bind="CustomerModel.Zipcode" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+    </div>
+
+    @* Media & Financial *@
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Photo URL</label>
+        <input @bind="CustomerModel.PhotoUrl" type="url" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Account Balance</label>
+        <input @bind="CustomerModel.AccountBalance" type="number" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Points</label>
+        <input @bind="CustomerModel.Points" type="number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+    </div>
+
+    @* Save Button *@
+    <div class="text-right">
+        <button class="bg-tata text-white px-6 py-2 rounded-lg hover:bg-blue-900 transition" @onclick="SaveCustomer">
+            Save
+        </button>
+    </div>
+
+</div>
+
+
+@code {
+    [Inject] NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] CustomerClient CustomerClient { get; set; } = default!;
+
+    public CustomerDto CustomerModel { get; set; } = new();
+
+    private async Task SaveCustomer()
+    {
+        // TODO: Implement save logic
+        if (this.CustomerModel is not null)
+        {
+            var customerClient = this.CustomerModel.toCustomerClient();
+            await CustomerClient.Create(customerClient);
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/product-list");
+    }
+
+    public class CustomerDto
+    {
+        public  Guid Id { get; set; } 
+        public string Name { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Gender { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string NationalId { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
+        public string Zipcode { get; set; } = string.Empty;
+        public string PhotoUrl { get; set; } = string.Empty;
+        public decimal AccountBalance { get; set; }
+        public int Points { get; set; }
+
+      public  Clients.Models.Customer toCustomerClient()
+        {
+            return new Clients.Models.Customer(
+                this.Id,
+                this.Name,
+                this.Gender,
+                this.Email,
+                this.Phone,
+                this.Address,
+                this.City,
+                "",
+                this.Country,
+                this.Zipcode
+            );
+
+        }
+    }
+}

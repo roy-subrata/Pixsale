@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
-using Pixsale.Shared.Services;
-using Pixsale.Services;
 using MudBlazor.Services;
+using Pixsale.Services;
+using Pixsale.Shared.Clients;
+using Pixsale.Shared.Services;
 
 namespace Pixsale;
 
@@ -26,6 +27,8 @@ public static class MauiProgram
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
 #endif
+
+        builder.Services.AddApiClient();
 
         return builder.Build();
     }
