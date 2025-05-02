@@ -18,12 +18,13 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             });
 
-        // Add device-specific services used by the Pixsale.Shared project
-        builder.Services.AddSingleton<IFormFactor, FormFactor>();
+        // Add device-specific services used by the Pixsale.Shared project\
+        builder.Services.AddSingleton<IDeviceInfoProvider, DeviceInfoProvider>();
+        builder.Services.AddSingleton<IDeviceInfoService, DeviceInfoService>();
+
+ 
 
         builder.Services.AddMauiBlazorWebView();
-        builder.Services.AddMudServices();
-#if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
 #endif
