@@ -1,51 +1,60 @@
 ﻿@page "/"
+@using Microsoft.Extensions.Logging
 @using Pixsale.Shared.Layout
 @using Pixsale.Shared.Services
-@inject IFormFactor FormFactor
+
 @using MudBlazor
 
 <PageTitle>Home</PageTitle>
 <div class="bg-tata text-white p-4 rounded-b-2xl">
-	<div class="flex items-center justify-between">
-		<div>
-			<h1 class="text-xl font-semibold">Roy Store</h1>
-			<p class="text-sm">সবার জন্য (9999 Days Left)</p>
-		</div>
-		<div class="text-center bg-gray-100 text-black px-3 py-1 rounded-xl font-bold">
-			৳ 0
-		</div>
-	</div>
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-xl font-semibold">Roy Store</h1>
+            <p class="text-sm">সবার জন্য (9999 Days Left)</p>
+        </div>
+        <div class="text-center bg-gray-100 text-black px-3 py-1 rounded-xl font-bold">
+            ৳ 0
+        </div>
+    </div>
 </div>
 
 <div class="bg-tata text-white p-4 mt-4 rounded-xl mx-3">
-	<div class="flex justify-between items-center mb-2">
-		<h2 class="text-lg font-semibold">Today’s Summary</h2>
-		<a class="text-sm underline" href="#">Sell All ></a>
-	</div>
-	<div class="grid grid-cols-2 gap-y-1 text-sm">
-		<div>Sales: <span class="font-bold">৳ 0</span></div>
-		<div>Purchased: <span class="font-bold">৳ 0</span></div>
-		<div>Loss/Profit: <span class="font-bold">৳ 0</span></div>
-		<div>Expense: <span class="font-bold">৳ 0</span></div>
-	</div>
+    <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-semibold">Today’s Summary</h2>
+        <a class="text-sm underline" href="#">Sell All ></a>
+    </div>
+    <div class="grid grid-cols-2 gap-y-1 text-sm">
+        <div>Sales: <span class="font-bold">৳ 0</span></div>
+        <div>Purchased: <span class="font-bold">৳ 0</span></div>
+        <div>Loss/Profit: <span class="font-bold">৳ 0</span></div>
+        <div>Expense: <span class="font-bold">৳ 0</span></div>
+    </div>
 </div>
 
 <div class="grid grid-cols-2 gap-4 p-4">
-	@foreach (var item in menuItems)
-	{
-		<MudPaper
-			Class="flex flex-col items-center justify-center p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
-			@onclick="() => NavigateTo(item.Route)">
-			<MudIcon Icon="@item.Icon" Color="Color.Primary" Size="Size.Medium" />
-			<span class="mt-2 text-sm">@item.Label</span>
-		</MudPaper>
-	}
+    @foreach (var item in menuItems)
+    {
+        <MudPaper Class="flex flex-col items-center justify-center p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+        @onclick="() => NavigateTo(item.Route)">
+            <MudIcon Icon="@item.Icon" Color="Color.Primary" Size="Size.Medium" />
+            <span class="mt-2 text-sm">@item.Label</span>
+        </MudPaper>
+    }
 </div>
 
 <BottomTabBar />
 
 @code {
-	[Inject] NavigationManager NavigationManager { get; set; }
+    [Inject] NavigationManager NavigationManager { get; set; }
+    [Inject] IDeviceInfoService deviceInfoService { get; set; }
+	[Inject] ILogger<Home> Logger { get; set; }
+
+	protected override void OnInitialized()
+	{
+		Logger.LogDebug("Device Infomation:",deviceInfoService.ToString());
+		base.OnInitialized();
+	
+	}
 
 	record HomeMenu(string Icon, string Label, string Route);
 	private List<HomeMenu> menuItems = new()

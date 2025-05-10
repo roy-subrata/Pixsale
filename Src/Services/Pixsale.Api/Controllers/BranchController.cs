@@ -46,7 +46,7 @@ namespace Pixsale.Api.Controllers
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateBranch branch)
         {
             logger.LogInformation("Updating branch with ID: {id}", id);
-            if(id != branch.Id)
+            if (id != branch.Id)
             {
                 return BadRequest("Branch ID mismatch");
             }

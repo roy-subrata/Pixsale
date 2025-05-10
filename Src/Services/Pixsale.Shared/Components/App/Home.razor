@@ -1,7 +1,7 @@
 ﻿@page "/app"
 @using Pixsale.Shared.Clients
 @using Pixsale.Shared.Services
-@inject IFormFactor FormFactor
+
 @inject BranchClient BranchClient
 @inject CustomerClient CustomerClient
 
@@ -27,8 +27,7 @@
 
 
 @code {
-	private string factor => FormFactor.GetFormFactor();
-	private string platform => FormFactor.GetPlatform();
+
 
 	protected List<Clients.Models.Branch> branchs = new List<Clients.Models.Branch>();
 	protected List<Clients.Models.Customer> customers = new List<Clients.Models.Customer>();
