@@ -1,14 +1,89 @@
 ﻿@page "/"
+@using Microsoft.Extensions.Logging
+@using Pixsale.Shared.Layout
 @using Pixsale.Shared.Services
-@inject IFormFactor FormFactor
+
+@using MudBlazor
 
 <PageTitle>Home</PageTitle>
+<div class="bg-tata text-white p-4 rounded-b-2xl">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-xl font-semibold">Roy Store</h1>
+            <p class="text-sm">সবার জন্য (9999 Days Left)</p>
+        </div>
+        <div class="text-center bg-gray-100 text-black px-3 py-1 rounded-xl font-bold">
+            ৳ 0
+        </div>
+    </div>
+</div>
 
-<h1>Hello, world!</h1>
+<div class="bg-tata text-white p-4 mt-4 rounded-xl mx-3">
+    <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-semibold">Today’s Summary</h2>
+        <a class="text-sm underline" href="#">Sell All ></a>
+    </div>
+    <div class="grid grid-cols-2 gap-y-1 text-sm">
+        <div>Sales: <span class="font-bold">৳ 0</span></div>
+        <div>Purchased: <span class="font-bold">৳ 0</span></div>
+        <div>Loss/Profit: <span class="font-bold">৳ 0</span></div>
+        <div>Expense: <span class="font-bold">৳ 0</span></div>
+    </div>
+</div>
 
-Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
+<div class="grid grid-cols-2 gap-4 p-4">
+    @foreach (var item in menuItems)
+    {
+        <MudPaper Class="flex flex-col items-center justify-center p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+        @onclick="() => NavigateTo(item.Route)">
+            <MudIcon Icon="@item.Icon" Color="Color.Primary" Size="Size.Medium" />
+            <span class="mt-2 text-sm">@item.Label</span>
+        </MudPaper>
+    }
+</div>
+
+<BottomTabBar />
 
 @code {
-    private string factor => FormFactor.GetFormFactor();
-    private string platform => FormFactor.GetPlatform();
+    [Inject] NavigationManager NavigationManager { get; set; }
+    [Inject] IDeviceInfoService deviceInfoService { get; set; }
+	[Inject] ILogger<Home> Logger { get; set; }
+
+	protected override void OnInitialized()
+	{
+		Logger.LogDebug("Device Infomation:",deviceInfoService.ToString());
+		base.OnInitialized();
+	
+	}
+
+	record HomeMenu(string Icon, string Label, string Route);
+	private List<HomeMenu> menuItems = new()
+{
+
+new(Icons.Material.Filled.ShoppingCart, "Sale","/counter"),
+new(Icons.Material.Filled.Groups, "Customer","/customers"),
+new(Icons.Material.Filled.ShoppingBag, "Purchase","/purchase"),
+new(Icons.Material.Filled.CardGiftcard, "Product","/product-list"),
+new(Icons.Material.Filled.Warehouse, "Warehouses","/warehouese"),
+new(Icons.Material.Filled.Badge, "Employees","/emplyoees"),
+new(Icons.Material.Filled.ListAlt, "Due List","/due-list"),
+new(Icons.Material.Filled.BarChart, "Stock List","/stock-list"),
+new(Icons.Material.Filled.Receipt, "Reports","/reports"),
+new(Icons.Material.Filled.ReceiptLong, "Sales List","/sale-list"),
+new (Icons.Material.Filled.Receipt, "Purchase List","/purchase-list"),
+new (Icons.Material.Filled.ShowChart, "Loss/Profit","/loss-profit"),
+
+};
+
+	private List<(string Icon, string Label)> bottomNavs = new()
+{
+(Icons.Material.Filled.Home, "Home"),
+(Icons.Material.Filled.InsertChart, "Dashboard"),
+(Icons.Material.Filled.Assessment, "Reports"),
+(Icons.Material.Filled.Settings, "Setting"),
+};
+	void NavigateTo(string url)
+	{
+		NavigationManager.NavigateTo(url);
+	}
 }

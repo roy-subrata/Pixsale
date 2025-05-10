@@ -1,0 +1,31 @@
+﻿<MudPaper Class="fixed bottom-0 left-0 right-0 z-10 shadow-md">
+    <div class="flex justify-around bg-white dark:bg-gray-900 py-2">
+        @foreach (var tab in Tabs)
+        {
+            <div class="flex flex-col items-center text-sm text-gray-700 dark:text-gray-300"
+                 @onclick="() => NavigateTo(tab.Route)">
+                <MudIcon Icon="@tab.Icon" Color="Color.Primary" />
+                <span class="mt-1">@tab.Label</span>
+            </div>
+        }
+    </div>
+</MudPaper>
+
+@code {
+    [Inject] NavigationManager NavigationManager { get; set; }
+
+    record TabItem(string Icon, string Label, string Route);
+
+    List<TabItem> Tabs = new()
+    {
+        new TabItem(Icons.Material.Filled.Home, "Home", "/"),
+        new TabItem(Icons.Material.Filled.Search, "Dashabord", "/app"),
+        new TabItem(Icons.Material.Filled.Favorite, "Reports", "/favorites"),
+        new TabItem(Icons.Material.Filled.Settings, "Sale", "/settings"),
+    };
+
+    void NavigateTo(string url)
+    {
+        NavigationManager.NavigateTo(url);
+    }
+}
