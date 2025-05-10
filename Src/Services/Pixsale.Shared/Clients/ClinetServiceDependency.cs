@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pixsale.Shared.Services;
 
 namespace Pixsale.Shared.Clients
 {
@@ -6,15 +7,20 @@ namespace Pixsale.Shared.Clients
     {
         public static IServiceCollection AddApiClient(this IServiceCollection services)
         {
-            
-            services.AddHttpClient<BranchClient>(client =>
+            services.AddHttpClient<BranchClient>((serviceProvider, client) =>
             {
-                client.BaseAddress = new Uri("http://10.0.2.2:5262/");
+                var scope = serviceProvider.CreateScope();
+                var deviceInfoService = scope.ServiceProvider.GetRequiredService<IDeviceInfoService>();
+                var apiConfig = deviceInfoService.GetApiConfiguration(); // Use async-safe code in production
+                client.BaseAddress = new Uri(apiConfig.BaseUrl);
             });
 
-            services.AddHttpClient<CustomerClient>(client =>
+            services.AddHttpClient<CustomerClient>((serviceProvider, client) =>
             {
-                client.BaseAddress = new Uri("http://10.0.2.2:5262/");
+                var scope = serviceProvider.CreateScope();
+                var deviceInfoService = scope.ServiceProvider.GetRequiredService<IDeviceInfoService>();
+                var apiConfig = deviceInfoService.GetApiConfiguration(); // Use async-safe code in production
+                client.BaseAddress = new Uri(apiConfig.BaseUrl);
             });
             return services;
         }

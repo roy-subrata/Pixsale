@@ -15,15 +15,15 @@ public class DeviceInfoService : IDeviceInfoService
         _deviceInfo = deviceInfo ?? throw new ArgumentNullException(nameof(deviceInfo));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
-    public async Task<ApiConfiguration> GetApiConfigurationAsync()
+    public ApiConfiguration GetApiConfiguration()
     {
         try
         {
-            return await Task.FromResult(_deviceInfo.DevicePlatform.ToLower() switch
+            return _deviceInfo.DevicePlatform.ToLower() switch
             {
                 "android" => new ApiConfiguration
                 {
-                    BaseUrl = "https://api.android.example.com",
+                    BaseUrl = "http://10.0.2.2:5262",
                     Headers = new Dictionary<string, string> { { "X-Platform", "Android" } },
                     TimeoutSeconds = 30
                 },
@@ -39,7 +39,7 @@ public class DeviceInfoService : IDeviceInfoService
                     Headers = new Dictionary<string, string>(),
                     TimeoutSeconds = 15
                 }
-            });
+            };
         }
         catch (Exception ex)
         {
@@ -47,7 +47,6 @@ public class DeviceInfoService : IDeviceInfoService
             return new ApiConfiguration { BaseUrl = "https://api.fallback.example.com", TimeoutSeconds = 15 };
         }
     }
-
 
     public string GetFormFactor()
     {
@@ -76,22 +75,28 @@ public class DeviceInfoService : IDeviceInfoService
     }
 
 
-    public async Task<RenderConfiguration> GetRenderConfigurationAsync()
+    public RenderConfiguration GetRenderConfiguration()
     {
         try
         {
             // Example: Platform-specific UI rendering
-            return await Task.FromResult(_deviceInfo.DevicePlatform.ToLower() switch
+            return _deviceInfo.DeviceIdiom.ToLower() switch
             {
-                "android" => new RenderConfiguration
+                "phone" => new RenderConfiguration
                 {
-                    PreferredLayout = "Grid",
+                    PreferredLayout = "Stack",
                     FontScale = 1.2,
                     SupportsDarkMode = true
                 },
-                "ios" => new RenderConfiguration
+                "tablet" => new RenderConfiguration
                 {
                     PreferredLayout = "Stack",
+                    FontScale = 1.0,
+                    SupportsDarkMode = true
+                },
+                "desktop" => new RenderConfiguration
+                {
+                    PreferredLayout = "Grid",
                     FontScale = 1.0,
                     SupportsDarkMode = true
                 },
@@ -101,7 +106,7 @@ public class DeviceInfoService : IDeviceInfoService
                     FontScale = 1.0,
                     SupportsDarkMode = false
                 }
-            });
+            };
         }
         catch (Exception ex)
         {
@@ -110,6 +115,19 @@ public class DeviceInfoService : IDeviceInfoService
         }
     }
 
+
+    public Task<bool> IsDevice(FormFactor formFactor)
+    {
+        var result = _deviceInfo.DeviceIdiom.ToLower();
+        return Task.FromResult(
+            formFactor switch
+            {
+                FormFactor.Phone => result.Equals("Phone", StringComparison.OrdinalIgnoreCase),
+                FormFactor.Tablet => result.Equals("Tablet", StringComparison.OrdinalIgnoreCase),
+                FormFactor.Desktop => result.Equals("Desktop", StringComparison.OrdinalIgnoreCase),
+                _ => false
+            });
+    }
     public bool IsPlatform(PlatformType platform)
     {
         var platformString = _deviceInfo.DevicePlatform.ToLower();

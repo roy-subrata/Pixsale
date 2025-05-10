@@ -1,65 +1,111 @@
-﻿using System.Runtime.InteropServices;
+﻿using Microsoft.JSInterop;
 using Pixsale.Shared.Services;
 
 namespace Pixsale.Services;
 
 public class DeviceInfoService : IDeviceInfoService
 {
-    public Task<ApiConfiguration> GetApiConfigurationAsync()
+    private readonly IDeviceInfoProvider _deviceInfo;
+    private readonly ILogger<DeviceInfoService> _logger;
+    private readonly IJSRuntime _jSRuntime;
+    public DeviceInfoService(IDeviceInfoProvider deviceInfo, ILogger<DeviceInfoService> logger, IJSRuntime jSRuntime)
     {
-        return Task.FromResult(new ApiConfiguration
+        _deviceInfo = deviceInfo ?? throw new ArgumentNullException(nameof(deviceInfo));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _jSRuntime = jSRuntime ?? throw new ArgumentNullException(nameof(jSRuntime));
+    }
+    public ApiConfiguration GetApiConfiguration()
+    {
+        try
         {
-            BaseUrl = "https://api.example.com",
-            Headers = new Dictionary<string, string>
+            return GetPlatform() switch
             {
-                { "Authorization", "Bearer <token>" },
-                { "Accept", "application/json" }
-            },
-            TimeoutSeconds = 30
-        });
+                "Web" => new ApiConfiguration
+                {
+                    BaseUrl = " http://localhost:5262",
+                    Headers = new Dictionary<string, string>
+                    {
+                        { "Authorization", "Bearer <token>" },
+                        { "Accept", "application/json" }
+                    },
+                    TimeoutSeconds = 30
+                },
+                _ => new ApiConfiguration { BaseUrl = "https://api.default.example.com", TimeoutSeconds = 15 }
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve API configuration.");
+            return new ApiConfiguration { BaseUrl = "https://api.fallback.example.com", TimeoutSeconds = 15 };
+        }
+
     }
 
     public string GetFormFactor()
     {
-        // Example: Assume web is always "Desktop" for simplicity
         return "Desktop";
     }
 
     public string GetPlatform()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return "Windows";
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            return "MacOS";
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return "Linux";
-
-        return "Unknown";
+        return _deviceInfo.DevicePlatform.Equals("Web", StringComparison.OrdinalIgnoreCase)
+        ? "Web"
+        : "Unknown";
     }
 
     public Version GetPlatformVersion()
     {
-        return Environment.OSVersion.Version;
+        try
+        {
+            return Version.TryParse(_deviceInfo.DevicePlatformVersion, out var version)
+                ? version
+                : Environment.OSVersion.Version;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve platform version.");
+            return Environment.OSVersion.Version;
+        }
     }
 
-    public Task<RenderConfiguration> GetRenderConfigurationAsync()
+    public RenderConfiguration GetRenderConfiguration()
     {
-        return Task.FromResult(new RenderConfiguration
+        return new RenderConfiguration
         {
             PreferredLayout = "Grid",
             FontScale = 1.0,
             SupportsDarkMode = true
-        });
+        };
     }
+
+    public async Task<bool> IsDevice(FormFactor formFactor)
+    {
+        try
+        {
+            var result =  await _jSRuntime.InvokeAsync<string>("deviceInfo.getFormFactor");
+
+            return formFactor switch
+            {
+                FormFactor.Phone => result.Equals("Phone", StringComparison.OrdinalIgnoreCase),
+                FormFactor.Tablet => result.Equals("Tablet", StringComparison.OrdinalIgnoreCase),
+                FormFactor.Desktop => result.Equals("Desktop", StringComparison.OrdinalIgnoreCase),
+                _ => false
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to determine device form factor.");
+            return false;
+        }
+       
+    }
+
 
     public bool IsPlatform(PlatformType platform)
     {
         return platform switch
         {
-            PlatformType.Windows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows),
-            PlatformType.MacCatalyst => RuntimeInformation.IsOSPlatform(OSPlatform.OSX),
-            PlatformType.Android => false, // Not applicable for web
-            PlatformType.iOS => false, // Not applicable for web
+            PlatformType.Web => _deviceInfo.DevicePlatform.Equals("Web", StringComparison.OrdinalIgnoreCase),
             _ => false
         };
     }

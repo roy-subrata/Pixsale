@@ -12,8 +12,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Add device-specific services used by the Pixsale.Shared project
-builder.Services.AddSingleton<IDeviceInfoProvider, DeviceInfoProvider>();
-builder.Services.AddSingleton<IDeviceInfoService, DeviceInfoService>();
+builder.Services.AddScoped<IDeviceInfoProvider, DeviceInfoProvider>();
+builder.Services.AddScoped<IDeviceInfoService, DeviceInfoService>();
 builder.Services.AddApiClient();
 builder.Services.AddMudServices();
 var app = builder.Build();

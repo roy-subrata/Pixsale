@@ -12,12 +12,3 @@ public interface IDeviceInfoProvider
 }
 
 
-
-public enum PlatformType
-{
-    Android,
-    iOS,
-    Windows,
-    MacCatalyst,
-    Unknown
-}

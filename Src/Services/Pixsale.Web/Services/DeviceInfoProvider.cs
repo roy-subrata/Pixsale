@@ -15,7 +15,7 @@ namespace Pixsale.Web.Services
 
         public string DevicePlatform => "Web";
 
-        public string DeviceIdiom => "N/A";
+        public string DeviceIdiom => "Desktop";
 
         public string DevicePlatformVersion => RuntimeInformation.OSDescription;
 
