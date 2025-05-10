@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using MudBlazor.Services;
 using Pixsale.Services;
 using Pixsale.Shared.Clients;
 using Pixsale.Shared.Services;
@@ -22,12 +21,12 @@ public static class MauiProgram
         builder.Services.AddSingleton<IDeviceInfoProvider, DeviceInfoProvider>();
         builder.Services.AddSingleton<IDeviceInfoService, DeviceInfoService>();
 
- 
+
 
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
-#endif
+
 
         builder.Services.AddApiClient();
 
