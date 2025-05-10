@@ -1,0 +1,71 @@
+﻿@page "/customers"
+@using static Pixsale.Shared.Components.App.Customer.CustomerCard
+@inject NavigationManager NavigationManager;
+@inject CustomerClient CustomerClient;
+
+<div class="flex items-center space-x-3 text-xl font-semibold text-gray-800">
+	<button @onclick="GoBack" class="text-tata hover:text-blue-900 focus:outline-none">
+		←
+	</button>
+	<h2>Home</h2>
+</div>
+
+<!-- Search -->
+<div class="p-4">
+	<input type="text"
+	placeholder="Search"
+	class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+	@bind="searchText" />
+</div>
+
+<!-- Customer Card -->
+<div class="px-4">
+	@foreach (var customer in customers)
+	{
+		<CustomerCard Customer="customer"  OnDetail="OnDetail" OnEdit="OnEdit" />
+	}
+</div>
+
+
+<!-- Add New Customet Button -->
+<div class="fixed bottom-4 left-0 right-0 px-4">
+	<button @onclick="AddNewProduct"
+	class="w-full bg-purple-700 text-white py-3 rounded-lg text-sm font-medium shadow-md hover:bg-purple-800">
+		Add New Customer +
+	</button>
+</div>
+@code {
+
+	protected List<CustomerCardModel> customers = new();
+	protected string searchText = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var customers = await CustomerClient.GetAllAsync();
+		this.customers = customers
+		.Select(cust => new CustomerCardModel(cust.Id, cust.Name, cust.Phone, cust.Address))
+		.ToList();
+	}
+
+	protected void GoBack() => NavigationManager.NavigateTo("/");
+
+	public void AddNewProduct() => NavigationManager.NavigateTo("/customer-entry");
+
+	private void  OnDetail(CustomerCardModel customer)
+	{
+		if(customer is not null)
+		{
+			NavigationManager.NavigateTo($"/customer/{customer.Id}");
+		}
+
+	}
+
+	private void  OnEdit(CustomerCardModel customer)
+	{
+		if (customer is not null)
+		{
+			NavigationManager.NavigateTo($"/customer/{customer.Id}");
+		}
+	}
+
+}

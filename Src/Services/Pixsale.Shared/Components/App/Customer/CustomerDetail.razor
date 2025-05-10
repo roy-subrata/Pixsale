@@ -1,7 +1,109 @@
-﻿@page "/customers-detail"
+﻿@page "/customer/{CustomerId:guid}"
+@using static Pixsale.Shared.Components.App.Customer.CustomerForm
+@using static Pixsale.Shared.Components.App.Customer.CustomerEntry
+@inject CustomerClient CustomerClient;
+@inject NavigationManager NavigationManager
 
-<h3>CustomerDetail</h3>
+<button @onclick="@(()=>NavigationManager.NavigateTo("/customers"))" class="text-tata hover:text-blue-900 focus:outline-none">←</button>
+<h2>Customers</h2>
+
+@using MudBlazor  
+
+<MudPaper Class="p-4 mb-4" Elevation="4">  
+	<MudText Typo="Typo.h4">@CustomerModel.Name</MudText>  
+	<MudText Typo="Typo.body1"><strong>ID:</strong> @CustomerModel.Id</MudText>  
+	<MudText Typo="Typo.body1"><strong>Email:</strong> @CustomerModel.Email</MudText>  
+	<MudText Typo="Typo.body1"><strong>Phone:</strong> @CustomerModel.Phone</MudText>  
+	<MudText Typo="Typo.body1"><strong>Total Due:</strong> "7686".ToString("C")</MudText>  
+</MudPaper>  
+
+<MudText Typo="Typo.h5" Class="mt-4">Transaction History</MudText>  
+<MudTable Items="TransactionHistories" Bordered="true" Hover="true" Class="mt-2">  
+	<HeaderContent>  
+		<MudTh>Date</MudTh>  
+		<MudTh>Dr</MudTh>  
+		<MudTh>Cr</MudTh>  
+		<MudTh>Due</MudTh>  
+	</HeaderContent>  
+	<RowTemplate>  
+		<MudTr>  
+			<MudTd>@context.Date.ToShortDateString()</MudTd>  
+			<MudTd>@context.Debit.ToString("C")</MudTd>  
+			<MudTd>@context.Credit.ToString("C")</MudTd>  
+			<MudTd>@context.RunningDue.ToString("C")</MudTd>  
+		</MudTr>  
+	</RowTemplate>  
+</MudTable>
+
 
 @code {
+	[Parameter]
+	public Guid CustomerId { get; set; }
+	protected CustomerDetailView CustomerModel { get; set; } = new();
+	protected List<TransactionHistory> TransactionHistories { get; set; } = new List<TransactionHistory>()
+	{
+		new TransactionHistory
+		{
+			Date=DateTime.Now,
+			InvoiceNo="INV-89",
+			Status="Pending",
+			Credit=234,
+			Debit=123,
+			RunningDue=230
+		}
+	};
+	protected override async Task OnInitializedAsync()
+	{
+		var customer = await CustomerClient.GetByIdAsync(CustomerId);
+		if (customer is not null)
+		{
+			CustomerModel = new CustomerDetailView
+				{
+					Id = customer.Id,
+					Name = customer.Name,
+					Phone = customer.Phone,
+					Address = customer.Address,
+					City = customer.City,
+					Country = customer.Country,
+					ZipCode = customer.ZipCode,
+					Email = customer.Email,
+					Gender = customer.Email,
+					NationalId = customer.NationalId,
+				};
+		}
+	}
 
+	protected async Task SaveCustomer(CustomerDto customer)
+	{
+		if (customer is not null)
+		{
+			var customerClient = customer.toCustomerClient();
+			await CustomerClient.PutAsync(customerClient);
+			NavigationManager.NavigateTo("/customers");
+		}
+	}
+
+	public class CustomerDetailView
+	{
+		public Guid Id { get; set; }
+		public string Name { get; set; }
+		public string Phone { get; set; }
+		public string Address { get; set; }
+		public string City { get; set; }
+		public string Country { get; set; }	
+		public string ZipCode { get; set; }
+		public string Email { get; set; }
+		public string Gender { get; set; }
+		public string NationalId { get; set; }
+	}
+
+	public class TransactionHistory
+	{
+		public DateTime Date { get; set; }
+		public string InvoiceNo { get; set; }
+		public string Status { get; set; }
+		public decimal Debit { get; set; }
+		public decimal Credit { get; set; }
+		public decimal RunningDue { get; set; }
+	}
 }

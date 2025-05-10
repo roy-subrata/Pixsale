@@ -35,7 +35,7 @@
 	{
 		await base.OnInitializedAsync(); // call the base method
 		this.branchs = await BranchClient.GetAllBranchAsync();
-		this.customers = await CustomerClient.GetAllCustomerAsync();
+		this.customers = await CustomerClient.GetAllAsync();
 		Console.WriteLine($"Branch: {branchs}");
 		Console.WriteLine($"Branch: {customers}");
 	}

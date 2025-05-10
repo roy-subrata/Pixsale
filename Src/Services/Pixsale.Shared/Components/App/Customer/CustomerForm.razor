@@ -1,0 +1,123 @@
+﻿
+@using System.ComponentModel.DataAnnotations
+@inject CustomerClient CustomerClient;
+
+<EditForm Model="@CustomerModel" OnValidSubmit="@SubmitCustomer">
+	<DataAnnotationsValidator />
+	<div class="p-6 mt-5 bg-white rounded-2xl shadow space-y-6">
+		<!-- Product Name -->
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+			<input @bind-value="CustomerModel.Name" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+			<ValidationMessage For="() => CustomerModel.Name" />
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Customer Phone</label>
+			<input @bind-value="CustomerModel.Phone" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+			<select @bind="CustomerModel.Gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata">
+				<option value="">Select gender</option>
+				<option value="Male">Male</option>
+				<option value="Female">Female</option>
+				<option value="Other">Other</option>
+			</select>
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+			<input @bind-value="CustomerModel.Email" type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		@* Identification & Address *@
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">National ID</label>
+			<input @bind-value="CustomerModel.NationalId" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+			<input @bind-value="CustomerModel.Address" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+			<input @bind-value="CustomerModel.City" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+			<input @bind-value="CustomerModel.Country" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Zipcode</label>
+			<input @bind="CustomerModel.Zipcode" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		@* Media & Financial *@
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Photo URL</label>
+			<input @bind-value="CustomerModel.PhotoUrl" type="url" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		@* Save Button *@
+		<div class="text-right">
+			<button type="submit" class="bg-tata text-white px-6 py-2 rounded-lg hover:bg-blue-900 transition">
+				Save
+			</button>
+		</div>
+
+	</div>
+</EditForm>
+
+@code {
+	[Parameter]
+	public CustomerDto CustomerModel { get; set; } = new ();
+
+	[Parameter]
+	public EventCallback<CustomerDto> OnSubmit { get; set; }
+
+	protected async Task SubmitCustomer()
+	{
+		await OnSubmit.InvokeAsync(CustomerModel);
+	}
+
+	public class CustomerDto
+	{
+		public Guid Id { get; set; }
+		[Required]
+		public string Name { get; set; } = string.Empty;
+		[Required]
+		public string Phone { get; set; } = string.Empty;
+		public string Gender { get; set; } = string.Empty;
+		public string Email { get; set; } = string.Empty;
+		public string NationalId { get; set; } = string.Empty;
+		public string Address { get; set; } = string.Empty;
+		public string City { get; set; } = string.Empty;
+		public string state { get; set; } = string.Empty;
+		public string Country { get; set; } = string.Empty;
+		public string Zipcode { get; set; } = string.Empty;
+		public string PhotoUrl { get; set; } = string.Empty;
+
+		public Clients.Models.Customer toCustomerClient()
+		{
+			return new Clients.Models.Customer(
+				this.Id,
+				this.Name,
+				this.Gender,
+				this.NationalId,
+				this.Email,
+				this.Phone,
+				this.Address,
+				this.City,
+				this.state,
+				this.Country,
+				this.Zipcode
+			);
+		}
+	}
+}
