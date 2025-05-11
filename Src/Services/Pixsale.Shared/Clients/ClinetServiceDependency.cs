@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Pixsale.Shared.Services;
 
 namespace Pixsale.Shared.Clients
@@ -8,53 +7,27 @@ namespace Pixsale.Shared.Clients
     {
         public static IServiceCollection AddApiClient(this IServiceCollection services)
         {
-            services.AddHttpClient<BranchClient>((serviceProvider, client) =>
+
+            var device = services.BuildServiceProvider()
+                .GetRequiredService<IDeviceInfoService>();
+
+            Action<HttpClient> httpClient = ((c) =>
             {
-                var scope = serviceProvider.CreateScope();
-                var deviceInfoService = scope.ServiceProvider.GetRequiredService<IDeviceInfoService>();
-                var apiConfig = deviceInfoService.GetApiConfiguration(); // Use async-safe code in production
-                client.BaseAddress = new Uri(apiConfig.BaseUrl);
+                c.BaseAddress = new Uri(device.GetApiConfiguration().BaseUrl);
             });
+            services.AddHttpClient<BranchClient>(httpClient);
 
-            services.AddHttpClient<CustomerClient>((serviceProvider, client) =>
-            {
-                var scope = serviceProvider.CreateScope();
-                var deviceInfoService = scope.ServiceProvider.GetRequiredService<IDeviceInfoService>();
-                var apiConfig = deviceInfoService.GetApiConfiguration(); // Use async-safe code in production
-                client.BaseAddress = new Uri(apiConfig.BaseUrl);
-            });
+            services.AddHttpClient<CustomerClient>(httpClient);
 
-            services.AddHttpClient<UnitClient>((serviceProvider, client) =>
-            {
-                var scope = serviceProvider.CreateScope();
-                var deviceInfoService = scope.ServiceProvider.GetRequiredService<IDeviceInfoService>();
-                var apiConfig = deviceInfoService.GetApiConfiguration(); // Use async-safe code in production
-                client.BaseAddress = new Uri(apiConfig.BaseUrl);
-            });
+            services.AddHttpClient<UnitClient>(httpClient);
 
-            services.AddHttpClient("CategoryApi", ((serviceProvider, client) =>
-            {
-                var scope = serviceProvider.CreateScope();
-                var deviceInfoService = scope.ServiceProvider.GetRequiredService<IDeviceInfoService>();
-                var apiConfig = deviceInfoService.GetApiConfiguration(); // Use async-safe code in production
-                client.BaseAddress = new Uri(apiConfig.BaseUrl);
-            }));
+            services.AddHttpClient("CategoryApi", httpClient);
 
-            services.AddHttpClient("UnitApi", ((serviceProvider, client) =>
-            {
-                var scope = serviceProvider.CreateScope();
-                var deviceInfoService = scope.ServiceProvider.GetRequiredService<IDeviceInfoService>();
-                var apiConfig = deviceInfoService.GetApiConfiguration(); // Use async-safe code in production
-                client.BaseAddress = new Uri(apiConfig.BaseUrl);
-            }));
+            services.AddHttpClient("UnitApi", httpClient);
 
-            services.AddHttpClient("ProductApi",(serviceProvider, client) =>
-            {
-                var scope = serviceProvider.CreateScope();
-                var deviceInfoService = scope.ServiceProvider.GetRequiredService<IDeviceInfoService>();
-                var apiConfig = deviceInfoService.GetApiConfiguration(); // Use async-safe code in production
-                client.BaseAddress = new Uri(apiConfig.BaseUrl);
-            });
+            services.AddHttpClient("ProductApi", httpClient);
+
+            services.AddHttpClient("SupplierApi", httpClient);
             return services;
         }
     }

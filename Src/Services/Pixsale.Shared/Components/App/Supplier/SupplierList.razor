@@ -1,0 +1,64 @@
+﻿@page "/suppliers"
+@using static Pixsale.Shared.Components.App.Supplier.SupplierCard
+
+@inject NavigationManager NavigationManager;
+@inject IHttpClientFactory HttpClientFactory;
+
+<div class="flex items-center space-x-3 text-xl font-semibold text-gray-800">
+	<button @onclick="GoBack" class="text-tata hover:text-blue-900 focus:outline-none">
+		←
+	</button>
+	<h2>Home</h2>
+</div>
+
+<div class="p-4">
+	<input type="text"
+		   placeholder="Search"
+		   class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+		   @bind="searchText" />
+</div>
+
+<div class="px-4">
+	@foreach (var supplier in Suppliers)
+	{
+		<SupplierCard Supplier="supplier" OnDetail="OnDetail" OnEdit="OnEdit" />
+	}
+</div>
+
+<div class="fixed bottom-4 left-0 right-0 px-4">
+	<button @onclick="OnAddProduct"
+			class="w-full bg-purple-700 text-white py-3 rounded-lg text-sm font-medium shadow-md hover:bg-purple-800">
+		Add New Supplier +
+	</button>
+</div>
+@code {
+
+	protected List<SupplierCardModel> Suppliers = new();
+	protected string searchText = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var httpClient = HttpClientFactory.CreateClient("SupplierApi");
+		var suppliers = await httpClient.GetFromJsonAsync<List<SupplierCardModel>>("api/supplier");
+		if (suppliers == null)
+		{
+			Suppliers = new List<SupplierCardModel>();
+		}
+		else
+		{
+			Suppliers = suppliers
+			.Select(cust => new SupplierCardModel(cust.Id, cust.Name, cust.Phone, cust.Address))
+			.ToList();
+		}
+
+	}
+
+	private void OnAddProduct() => NavigationManager.NavigateTo("/supplier-form");
+
+	private void OnEdit(SupplierCardModel customer) => NavigationManager.NavigateTo($"/supplier-form/{customer.Id}");
+
+	private void OnDetail(SupplierCardModel customer) => NavigationManager.NavigateTo($"/supplier/{customer.Id}");
+
+	private void GoBack() => NavigationManager.NavigateTo("/");
+
+}

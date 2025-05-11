@@ -1,7 +1,97 @@
-﻿@page "/supplier-detail"
+﻿@page "/supplier/{SupplierId:guid}"
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager NavigationManager
 
-<h3>CustomerDetail</h3>
+<button @onclick="@(()=>NavigationManager.NavigateTo("/suppliers"))" class="text-tata hover:text-blue-900 focus:outline-none">←</button>
+<h2>Suppliers</h2>
+
+@using MudBlazor
+<div class="p-4 space-y-6">
+	<div class="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
+		<img src="https://gravatar.com/avatar/5b805ef659e28b54dcc33c758ec6efaa?s=200&d=robohash&r=x" alt="Customer Image" class="w-24 h-24 rounded-full">
+		<div>
+			<h2 class="text-xl font-semibold text-gray-800">@SupplierModel.Name</h2>
+			<p class="text-gray-600">@SupplierModel.Phone</p>
+			<p class="text-gray-600">@SupplierModel.Address</p>
+		</div>
+	</div>
+
+	<MudTable T="TransactionHistory" Items="@TransactionHistories" Hover="true" Breakpoint="Breakpoint.Sm">
+		<HeaderContent>
+			<MudTh>Invoice No</MudTh>
+			<MudTh>Date</MudTh>
+			<MudTh>Status</MudTh>
+			<MudTh>Credit</MudTh>
+			<MudTh>Debit</MudTh>
+			<MudTh>RunningDue</MudTh>
+		</HeaderContent>
+		<RowTemplate>
+			<MudTd DataLabel="Nr">@context.InvoiceNo</MudTd>
+			<MudTd DataLabel="Sign">@context.Date</MudTd>
+			<MudTd DataLabel="Name">@context.Status</MudTd>
+			<MudTd DataLabel="Position">@context.Credit</MudTd>
+			<MudTd DataLabel="Molar mass">@context.Debit</MudTd>
+			<MudTd DataLabel="Molar mass">@context.RunningDue</MudTd>
+		</RowTemplate>
+	</MudTable>
+</div>
+
+
 
 @code {
+	[Parameter]
+	public Guid SupplierId { get; set; }
+	protected SupplierDetailView SupplierModel { get; set; } = new();
+	protected List<TransactionHistory> TransactionHistories { get; set; } = new List<TransactionHistory>()
+	{
+		new TransactionHistory
+		{
+			Date=DateTime.Now,
+			InvoiceNo="INV-89",
+			Status="Pending",
+			Credit=234,
+			Debit=123,
+			RunningDue=230
+		}
+	};
+	protected override async Task OnInitializedAsync()
+	{
+		var client = HttpClientFactory.CreateClient("SupplierApi");
+		var supplier = await client.GetFromJsonAsync<SupplierDetailView>($"api/supplier/{SupplierId}");
+		if (supplier is not null)
+		{
+			SupplierModel = new SupplierDetailView
+				{
+					Id = supplier.Id,
+					Name = supplier.Name,
+					Phone = supplier.Phone,
+					Address = supplier.Address,
+					City = supplier.City,
+					Country = supplier.Country,
+					Email = supplier.Email
+				};
+		}
+	}
 
+	public class SupplierDetailView
+	{
+		public Guid Id { get; set; }
+		public string Name { get; set; } = string.Empty;
+		public string Phone { get; set; } = string.Empty;
+		public string Address { get; set; } = string.Empty;
+		public string City { get; set; } = string.Empty;
+		public string Country { get; set; } = string.Empty;
+		public string Email { get; set; } = string.Empty;
+
+	}
+
+	public class TransactionHistory
+	{
+		public DateTime Date { get; set; }
+		public string InvoiceNo { get; set; } = string.Empty;
+		public string Status { get; set; } = string.Empty;
+		public decimal Debit { get; set; }
+		public decimal Credit { get; set; }
+		public decimal RunningDue { get; set; }
+	}
 }

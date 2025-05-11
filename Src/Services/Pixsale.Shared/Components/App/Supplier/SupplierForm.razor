@@ -1,0 +1,115 @@
+﻿@page "/supplier-form/{SupplierId:guid?}"
+@using System.ComponentModel.DataAnnotations
+@inject IHttpClientFactory HttpClientFactory;
+@inject NavigationManager NavigationManager;
+
+<button @onclick="@(()=>NavigationManager.NavigateTo("/suppliers"))" class="text-tata hover:text-blue-900 focus:outline-none">←</button>
+<h2>Suppliers</h2>
+<EditForm Model="@SupplierModel" OnValidSubmit="@SubmitSupplier">
+	<DataAnnotationsValidator />
+	<div class="p-6 mt-5 bg-white rounded-2xl shadow space-y-6">
+		<!-- Product Name -->
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Supplier Name</label>
+			<input @bind-value="SupplierModel.Name" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+			<ValidationMessage For="() => SupplierModel.Name" />
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Supplier Phone</label>
+			<input @bind-value="SupplierModel.Phone" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+			<input @bind-value="SupplierModel.Email" type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		@* Identification & Address *@
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">National ID</label>
+			<input @bind-value="SupplierModel.NationalId" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+			<input @bind-value="SupplierModel.Address" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+			<input @bind-value="SupplierModel.City" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+			<input @bind-value="SupplierModel.Country" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+		</div>
+
+		@* Save Button *@
+		<div class="text-right">
+			<button type="submit" class="bg-tata text-white px-6 py-2 rounded-lg hover:bg-blue-900 transition">
+				Save
+			</button>
+		</div>
+
+	</div>
+</EditForm>
+
+@code {
+
+	[Parameter]
+	public Guid SupplierId { get; set; }
+
+	public SupplierDto SupplierModel { get; set; } = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (SupplierId == Guid.Empty)
+		{
+			SupplierModel = new();
+		}
+		else
+		{
+			var client = HttpClientFactory.CreateClient("SupplierApi");
+			var supplier = await client.GetFromJsonAsync<SupplierDto>($"api/supplier/{SupplierId}");
+			if (supplier is not null)
+			{
+				SupplierModel = supplier;
+			}
+		}
+	}
+
+	protected async Task SubmitSupplier()
+	{
+		var client = HttpClientFactory.CreateClient("SupplierApi");
+		 
+		if (SupplierModel.Id == Guid.Empty)
+		{
+			await client.PostAsJsonAsync("api/supplier", SupplierModel);
+		}
+		else
+		{
+			await client.PutAsJsonAsync($"api/supplier/{SupplierModel.Id}", SupplierModel);
+		}
+
+		NavigationManager.NavigateTo("/suppliers");
+	}
+
+	public class SupplierDto
+	{
+		public Guid Id { get; set; }
+		[Required]
+		public string Name { get; set; } = string.Empty;
+		[Required]
+		public string Phone { get; set; } = string.Empty;
+		public string Gender { get; set; } = string.Empty;
+		public string Email { get; set; } = string.Empty;
+		public string NationalId { get; set; } = string.Empty;
+		public string Address { get; set; } = string.Empty;
+		public string City { get; set; } = string.Empty;
+		public string State { get; set; } = string.Empty;
+		public string Country { get; set; } = string.Empty;
+	}
+}
+
