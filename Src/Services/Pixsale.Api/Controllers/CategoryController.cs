@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Pixsale.Application.Models;
 using Pixsale.Domain.Entities;
 using Pixsale.Infrastructure;
+using Category = Pixsale.Domain.Entities.Category;
 
 namespace Pixsale.Api.Controllers
 {

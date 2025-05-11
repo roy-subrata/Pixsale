@@ -2,7 +2,7 @@
 @using static Pixsale.Shared.Components.App.Customer.CustomerForm
 @using static Pixsale.Shared.Components.App.Customer.CustomerCard
 @inject NavigationManager NavigationManager;
-@inject CustomerClient CustomerClient;
+@inject IHttpClientFactory HttpClientFactory;
 
 <div class="flex items-center space-x-3 text-xl font-semibold text-gray-800">
 	<button @onclick="GoBack" class="text-tata hover:text-blue-900 focus:outline-none">
@@ -19,7 +19,7 @@
 </div>
 
 <div class="px-4">
-	@foreach (var customer in customers)
+	@foreach (var customer in Customers)
 	{
 		<CustomerCard Customer="customer" OnDetail="OnDetail" OnEdit="OnEdit" />
 	}
@@ -33,13 +33,18 @@
 </div>
 @code {
 
-	protected List<CustomerCardModel> customers = new();
+	protected List<CustomerCardModel> Customers = new();
 	protected string searchText = string.Empty;
 
 	protected override async Task OnInitializedAsync()
 	{
-		var customers = await CustomerClient.GetAllAsync();
-		this.customers = customers
+		var httpClient = HttpClientFactory.CreateClient("CustomerClient");
+		var customers = await httpClient.GetFromJsonAsync<List<CustomerCardModel>>("api/customer");
+		if (customers == null)
+		{
+			customers = new List<CustomerCardModel>();
+		}
+		Customers = customers
 		.Select(cust => new CustomerCardModel(cust.Id, cust.Name, cust.Phone, cust.Address))
 		.ToList();
 	}
