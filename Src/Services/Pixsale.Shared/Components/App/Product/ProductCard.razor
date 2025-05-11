@@ -1,0 +1,64 @@
+﻿@using static Pixsale.Shared.Components.App.Product.ProductList
+
+@inject NavigationManager NavigationManager
+
+<div class="flex items-center justify-between bg-purple-100 p-4 rounded-lg mb-4">
+	<div class="flex items-center space-x-3">
+		<img src="https://gravatar.com/avatar/5b805ef659e28b54dcc33c758ec6efaa?s=200&d=robohash&r=x"
+		class="w-12 h-12 rounded-full" />
+		<div>
+			<p class="text-sm font-semibold">@Product.Name</p>
+			<p class="text-xs text-gray-600">@Product.Category.Name</p>
+			<p class="text-xs text-gray-600">@Product.TotalQty</p>
+		</div>
+	</div>
+	<div class="flex items-center space-x-4">
+		<p class="text-sm font-semibold">৳ 0</p>
+		<div class="relative">
+
+			<button @onclick="ToggleDropdown" class="text-2xl">⋮</button>
+
+			@if (IsDropdownVisible)
+			{
+				<div class="absolute right-0 mt-2 w-32 bg-white border border-gray-300 rounded shadow-lg">
+					<button @onclick="OnEditProduct" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">edit</button>
+					<button @onclick="OnDetailProduct" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">details</button>
+				</div>
+			}
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public ProductCardVm Product { get; set; } = new(Guid.Empty, string.Empty, string.Empty, new CategoryVm(Guid.Empty, string.Empty), 0);
+	[Parameter]
+	public EventCallback<ProductCardVm> OnEdit { get; set; }
+	[Parameter]
+	public EventCallback<ProductCardVm> OnDetail { get; set; }
+
+	private bool IsDropdownVisible { get; set; } = false;
+
+	public record ProductCardModel(Guid Id, string Name, string CategoryId, String Address);
+
+	private void ToggleDropdown()
+	{
+		IsDropdownVisible = !IsDropdownVisible;
+	}
+
+	private void OnDetailProduct()
+	{
+		if (OnDetail.HasDelegate)
+		{
+			OnDetail.InvokeAsync(Product);
+		}
+	}
+
+	private void OnEditProduct()
+	{
+		if (OnEdit.HasDelegate)
+		{
+			OnEdit.InvokeAsync(Product);
+		}
+	}
+}

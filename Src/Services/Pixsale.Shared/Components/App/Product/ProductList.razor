@@ -1,0 +1,64 @@
+﻿@page "/products"
+@inject NavigationManager NavigationManager;
+@inject IHttpClientFactory HttpClientFactory;
+
+<div class="flex items-center space-x-3 text-xl font-semibold text-gray-800">
+	<button @onclick="GoBack" class="text-tata hover:text-blue-900 focus:outline-none">
+		←
+	</button>
+	<h2>Home</h2>
+</div>
+
+<div class="p-4">
+	<input type="text"
+		   placeholder="Search"
+		   class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+		   @bind="searchText" />
+</div>
+
+<div class="px-4">
+	@foreach (var product in Products)
+	{
+		<ProductCard Product="product" OnDetail="OnDetail" OnEdit="OnEdit" />
+	}
+</div>
+
+<div class="fixed bottom-4 left-0 right-0 px-4">
+	<button @onclick="OnAddProduct"
+			class="w-full bg-purple-700 text-white py-3 rounded-lg text-sm font-medium shadow-md hover:bg-purple-800">
+		Add New Product +
+	</button>
+</div>
+@code {
+
+	protected List<ProductCardVm> Products = new();
+	protected string searchText = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var httpClient = HttpClientFactory.CreateClient("ProductClient");
+		var products = await httpClient.GetFromJsonAsync<List<ProductCardVm>>("api/product");
+		if (products == null)
+		{
+			products = new List<ProductCardVm>();
+		}
+		Products = products
+		.Select(product => new ProductCardVm(product.Id, product.Name, product.Description,
+			new(product.Category.Id, product.Category.Name)
+			, product.TotalQty))
+		.ToList();
+	}
+
+	private void OnAddProduct() => NavigationManager.NavigateTo("/product-form");
+
+	private void OnEdit(ProductCardVm product) => NavigationManager.NavigateTo($"/product-form/{product.Id}");
+
+	private void OnDetail(ProductCardVm product) => NavigationManager.NavigateTo($"/product/{product.Id}");
+
+	private void GoBack() => NavigationManager.NavigateTo("/");
+
+
+	public record CategoryVm(Guid Id, string Name);
+	public record ProductCardVm(Guid Id, string Name, string Description, CategoryVm Category, int TotalQty);
+
+}
