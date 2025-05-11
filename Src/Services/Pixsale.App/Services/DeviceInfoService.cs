@@ -27,6 +27,12 @@ public class DeviceInfoService : IDeviceInfoService
                     Headers = new Dictionary<string, string> { { "X-Platform", "Android" } },
                     TimeoutSeconds = 30
                 },
+                "desktop" => new ApiConfiguration
+                {
+                    BaseUrl = "http://10.0.2.2:5262",
+                    Headers = new Dictionary<string, string> { { "X-Platform", "Android" } },
+                    TimeoutSeconds = 30
+                },
                 "ios" => new ApiConfiguration
                 {
                     BaseUrl = "https://api.ios.example.com",

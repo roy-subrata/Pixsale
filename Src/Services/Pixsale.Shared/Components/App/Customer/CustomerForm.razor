@@ -1,7 +1,9 @@
-﻿
+﻿@page "/customer-form/{CustomerId:guid?}"
 @using System.ComponentModel.DataAnnotations
 @inject CustomerClient CustomerClient;
-
+@inject NavigationManager NavigationManager;
+<button @onclick="@(()=>NavigationManager.NavigateTo("/customers"))" class="text-tata hover:text-blue-900 focus:outline-none">←</button>
+<h2>Customers</h2>
 <EditForm Model="@CustomerModel" OnValidSubmit="@SubmitCustomer">
 	<DataAnnotationsValidator />
 	<div class="p-6 mt-5 bg-white rounded-2xl shadow space-y-6">
@@ -55,7 +57,7 @@
 
 		<div>
 			<label class="block text-sm font-medium text-gray-700 mb-1">Zipcode</label>
-			<input @bind="CustomerModel.Zipcode" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
+			<input @bind="CustomerModel.ZipCode" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tata" />
 		</div>
 
 		@* Media & Financial *@
@@ -75,15 +77,54 @@
 </EditForm>
 
 @code {
-	[Parameter]
-	public CustomerDto CustomerModel { get; set; } = new ();
 
 	[Parameter]
-	public EventCallback<CustomerDto> OnSubmit { get; set; }
+	public Guid CustomerId { get; set; }
+
+	public CustomerDto CustomerModel { get; set; } = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (CustomerId == Guid.Empty)
+		{
+			CustomerModel = new();
+		}
+		else
+		{
+			var customer = await CustomerClient.GetByIdAsync(CustomerId);
+			if (customer is not null)
+			{
+				CustomerModel = new CustomerDto()
+					{
+						Id = customer.Id,
+						Name = customer.Name,
+						NationalId = customer.NationalId,
+						Email = customer.Email,
+						Phone = customer.Phone,
+						Address = customer.Address,
+						City = customer.City,
+						State = customer.State,
+						Country = customer.Country,
+						Gender = customer.Gender,
+						ZipCode = customer.ZipCode
+					};
+			}
+		}
+	}
 
 	protected async Task SubmitCustomer()
 	{
-		await OnSubmit.InvokeAsync(CustomerModel);
+		var customerClient = CustomerModel.toCustomerClient();
+		if (customerClient.Id == Guid.Empty)
+		{
+			await CustomerClient.PostAsync(customerClient);
+		}
+		else
+		{
+			await CustomerClient.PutAsync(customerClient);
+		}
+
+		NavigationManager.NavigateTo("/customers");
 	}
 
 	public class CustomerDto
@@ -98,9 +139,9 @@
 		public string NationalId { get; set; } = string.Empty;
 		public string Address { get; set; } = string.Empty;
 		public string City { get; set; } = string.Empty;
-		public string state { get; set; } = string.Empty;
+		public string State { get; set; } = string.Empty;
 		public string Country { get; set; } = string.Empty;
-		public string Zipcode { get; set; } = string.Empty;
+		public string ZipCode { get; set; } = string.Empty;
 		public string PhotoUrl { get; set; } = string.Empty;
 
 		public Clients.Models.Customer toCustomerClient()
@@ -114,9 +155,9 @@
 				this.Phone,
 				this.Address,
 				this.City,
-				this.state,
+				this.State,
 				this.Country,
-				this.Zipcode
+				this.ZipCode
 			);
 		}
 	}

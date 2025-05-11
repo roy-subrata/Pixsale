@@ -1,4 +1,5 @@
 ﻿@page "/customers"
+@using static Pixsale.Shared.Components.App.Customer.CustomerForm
 @using static Pixsale.Shared.Components.App.Customer.CustomerCard
 @inject NavigationManager NavigationManager;
 @inject CustomerClient CustomerClient;
@@ -10,27 +11,23 @@
 	<h2>Home</h2>
 </div>
 
-<!-- Search -->
 <div class="p-4">
 	<input type="text"
-	placeholder="Search"
-	class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
-	@bind="searchText" />
+		   placeholder="Search"
+		   class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+		   @bind="searchText" />
 </div>
 
-<!-- Customer Card -->
 <div class="px-4">
 	@foreach (var customer in customers)
 	{
-		<CustomerCard Customer="customer"  OnDetail="OnDetail" OnEdit="OnEdit" />
+		<CustomerCard Customer="customer" OnDetail="OnDetail" OnEdit="OnEdit" />
 	}
 </div>
 
-
-<!-- Add New Customet Button -->
 <div class="fixed bottom-4 left-0 right-0 px-4">
-	<button @onclick="AddNewProduct"
-	class="w-full bg-purple-700 text-white py-3 rounded-lg text-sm font-medium shadow-md hover:bg-purple-800">
+	<button @onclick="OnAddProduct"
+			class="w-full bg-purple-700 text-white py-3 rounded-lg text-sm font-medium shadow-md hover:bg-purple-800">
 		Add New Customer +
 	</button>
 </div>
@@ -47,25 +44,12 @@
 		.ToList();
 	}
 
-	protected void GoBack() => NavigationManager.NavigateTo("/");
+	private void OnAddProduct() => NavigationManager.NavigateTo("/customer-form");
 
-	public void AddNewProduct() => NavigationManager.NavigateTo("/customer-entry");
+	private void OnEdit(CustomerCardModel customer) => NavigationManager.NavigateTo($"/customer-form/{customer.Id}");
 
-	private void  OnDetail(CustomerCardModel customer)
-	{
-		if(customer is not null)
-		{
-			NavigationManager.NavigateTo($"/customer/{customer.Id}");
-		}
+	private void OnDetail(CustomerCardModel customer) => NavigationManager.NavigateTo($"/customer/{customer.Id}");
 
-	}
-
-	private void  OnEdit(CustomerCardModel customer)
-	{
-		if (customer is not null)
-		{
-			NavigationManager.NavigateTo($"/customer/{customer.Id}");
-		}
-	}
+	private void GoBack() => NavigationManager.NavigateTo("/");
 
 }

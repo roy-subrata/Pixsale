@@ -1,6 +1,5 @@
 ﻿@page "/customer/{CustomerId:guid}"
 @using static Pixsale.Shared.Components.App.Customer.CustomerForm
-@using static Pixsale.Shared.Components.App.Customer.CustomerEntry
 @inject CustomerClient CustomerClient;
 @inject NavigationManager NavigationManager
 
@@ -8,32 +7,36 @@
 <h2>Customers</h2>
 
 @using MudBlazor  
+<div class="p-4 space-y-6">
+	<div class="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
+		<img src="https://gravatar.com/avatar/5b805ef659e28b54dcc33c758ec6efaa?s=200&d=robohash&r=x" alt="Customer Image" class="w-24 h-24 rounded-full">
+		<div>
+			<h2 class="text-xl font-semibold text-gray-800">@CustomerModel.Name</h2>
+			<p class="text-gray-600">@CustomerModel.Phone</p>
+			<p class="text-gray-600">@CustomerModel.Address</p>
+		</div>
+	</div>
 
-<MudPaper Class="p-4 mb-4" Elevation="4">  
-	<MudText Typo="Typo.h4">@CustomerModel.Name</MudText>  
-	<MudText Typo="Typo.body1"><strong>ID:</strong> @CustomerModel.Id</MudText>  
-	<MudText Typo="Typo.body1"><strong>Email:</strong> @CustomerModel.Email</MudText>  
-	<MudText Typo="Typo.body1"><strong>Phone:</strong> @CustomerModel.Phone</MudText>  
-	<MudText Typo="Typo.body1"><strong>Total Due:</strong> "7686".ToString("C")</MudText>  
-</MudPaper>  
+	<MudTable T="TransactionHistory" Items="@TransactionHistories" Hover="true" Breakpoint="Breakpoint.Sm">
+		<HeaderContent>
+			<MudTh>Invoice No</MudTh>
+			<MudTh>Date</MudTh>
+			<MudTh>Status</MudTh>
+			<MudTh>Credit</MudTh>
+			<MudTh>Debit</MudTh>
+			<MudTh>RunningDue</MudTh>
+		</HeaderContent>
+		<RowTemplate>
+			<MudTd DataLabel="Nr">@context.InvoiceNo</MudTd>
+			<MudTd DataLabel="Sign">@context.Date</MudTd>
+			<MudTd DataLabel="Name">@context.Status</MudTd>
+			<MudTd DataLabel="Position">@context.Credit</MudTd>
+			<MudTd DataLabel="Molar mass">@context.Debit</MudTd>
+			<MudTd DataLabel="Molar mass">@context.RunningDue</MudTd>
+		</RowTemplate>
+	</MudTable>
+</div>
 
-<MudText Typo="Typo.h5" Class="mt-4">Transaction History</MudText>  
-<MudTable Items="TransactionHistories" Bordered="true" Hover="true" Class="mt-2">  
-	<HeaderContent>  
-		<MudTh>Date</MudTh>  
-		<MudTh>Dr</MudTh>  
-		<MudTh>Cr</MudTh>  
-		<MudTh>Due</MudTh>  
-	</HeaderContent>  
-	<RowTemplate>  
-		<MudTr>  
-			<MudTd>@context.Date.ToShortDateString()</MudTd>  
-			<MudTd>@context.Debit.ToString("C")</MudTd>  
-			<MudTd>@context.Credit.ToString("C")</MudTd>  
-			<MudTd>@context.RunningDue.ToString("C")</MudTd>  
-		</MudTr>  
-	</RowTemplate>  
-</MudTable>
 
 
 @code {
