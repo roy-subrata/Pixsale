@@ -6,7 +6,7 @@
 <button @onclick="@(()=>NavigationManager.NavigateTo("/customers"))" class="text-tata hover:text-blue-900 focus:outline-none">←</button>
 <h2>Customers</h2>
 
-@using MudBlazor  
+@using MudBlazor
 <div class="p-4 space-y-6">
 	<div class="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
 		<img src="https://gravatar.com/avatar/5b805ef659e28b54dcc33c758ec6efaa?s=200&d=robohash&r=x" alt="Customer Image" class="w-24 h-24 rounded-full">
@@ -89,22 +89,22 @@
 	public class CustomerDetailView
 	{
 		public Guid Id { get; set; }
-		public string Name { get; set; }
-		public string Phone { get; set; }
-		public string Address { get; set; }
-		public string City { get; set; }
-		public string Country { get; set; }	
-		public string ZipCode { get; set; }
-		public string Email { get; set; }
-		public string Gender { get; set; }
-		public string NationalId { get; set; }
+		public string Name { get; set; } = string.Empty;
+		public string Phone { get; set; } = string.Empty;
+		public string Address { get; set; } = string.Empty;
+		public string City { get; set; } = string.Empty;
+		public string Country { get; set; } = string.Empty;
+		public string ZipCode { get; set; } = string.Empty;
+		public string Email { get; set; } = string.Empty;
+		public string Gender { get; set; } = string.Empty;
+		public string NationalId { get; set; } = string.Empty;
 	}
 
 	public class TransactionHistory
 	{
 		public DateTime Date { get; set; }
-		public string InvoiceNo { get; set; }
-		public string Status { get; set; }
+		public string InvoiceNo { get; set; } = string.Empty;
+		public string Status { get; set; } = string.Empty;
 		public decimal Debit { get; set; }
 		public decimal Credit { get; set; }
 		public decimal RunningDue { get; set; }
