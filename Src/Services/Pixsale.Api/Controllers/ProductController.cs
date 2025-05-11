@@ -16,12 +16,18 @@ namespace Pixsale.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var products = await dbContext.Products.Include(p => p.Category)
+            var products = await dbContext.Products.
+                
+                Include(p => p.Category)
+                .Include(p=>p.Unit)
                 .Select(product => new GetProduct(
                     product.Id,
                     product.Name,
+                    product.LocalName,
+                    product.Brand,
                     product.Description,
-                    new Application.Models.Category(product.Category.Id, product.Category.Name),
+                    new EntityRef(product.Category.Id, product.Category.Name),
+                    new EntityRef(product.Unit.Id, product.Unit.Name),
                     product.TotalQty
                     )).ToListAsync();
 
@@ -40,7 +46,10 @@ namespace Pixsale.Api.Controllers
             var newProduct = new Product()
             {
                 Name = Product.Name,
+                LocalName = Product.LocalName,
+                Brand = Product.Brand,
                 Description = Product.Description,
+                UnitId = Product.UnitId,
                 CategoryId = Product.CategoryId,
             };
             await dbContext.Products.AddAsync(newProduct);
@@ -62,6 +71,9 @@ namespace Pixsale.Api.Controllers
                 return NotFound();
             }
             existingProduct.Name = Product.Name;
+            existingProduct.LocalName = Product.LocalName;
+            existingProduct.Brand=Product.Brand;
+            existingProduct.UnitId=Product.UnitId;
             existingProduct.Description = Product.Description;
             existingProduct.CategoryId = Product.CategoryId;
             await dbContext.SaveChangesAsync();

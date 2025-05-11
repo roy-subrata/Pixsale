@@ -36,7 +36,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		var httpClient = HttpClientFactory.CreateClient("ProductClient");
+		var httpClient = HttpClientFactory.CreateClient("ProductApi");
 		var products = await httpClient.GetFromJsonAsync<List<ProductCardVm>>("api/product");
 		if (products == null)
 		{

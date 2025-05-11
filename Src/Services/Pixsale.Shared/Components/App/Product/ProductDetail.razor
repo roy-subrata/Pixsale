@@ -1,0 +1,60 @@
+﻿@page "/product/{ProductId:guid}"
+@using static Pixsale.Shared.Components.App.Customer.CustomerForm
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager NavigationManager
+
+<button @onclick="@(()=>NavigationManager.NavigateTo("/products"))" class="text-tata hover:text-blue-900 focus:outline-none">←</button>
+<h2>Customers</h2>
+
+@using MudBlazor
+@using static Pixsale.Shared.Components.App.Product.ProductList
+<div class="p-4 space-y-6">
+	@if (ProductModel is not null)
+	{
+		<div class="bg-white shadow-md rounded-lg p-6 flex items-center space-x-4">
+			<img src="https://gravatar.com/avatar/5b805ef659e28b54dcc33c758ec6efaa?s=200&d=robohash&r=x" alt="Customer Image" class="w-24 h-24 rounded-full">
+			<div>
+				<h2 class="text-xl font-semibold text-gray-800">@ProductModel.Name</h2>
+				<p class="text-gray-600">@ProductModel.Description</p>
+			</div>
+		</div>
+	}
+	else
+	{
+		<span class="text-gray-600">No Product Found</span>
+	}
+
+
+</div>
+
+
+
+@code {
+	[Parameter]
+	public Guid ProductId { get; set; }
+	protected ProductDetailVm ProductModel { get; set; } = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			var httpClient = HttpClientFactory.CreateClient("ProductApi");
+			ProductModel = await httpClient.GetFromJsonAsync<ProductDetailVm>($"api/product/{ProductId}");
+		}
+		catch (Exception ex)
+		{
+
+			throw;
+		}
+
+	}
+
+	public class ProductDetailVm
+	{
+		public Guid Id { get; set; }	
+		public string Name { get; set; } = string.Empty;
+		public string Description { get; set; } = string.Empty;
+		public int TotalQty { get; set; }
+	}
+
+}
