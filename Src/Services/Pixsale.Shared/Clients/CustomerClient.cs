@@ -1,4 +1,5 @@
-using System.Text.Json;
+using System.Net.Http.Json;
+using Microsoft.Extensions.Logging;
 using Pixsale.Shared.Clients.Models;
 
 namespace Pixsale.Shared.Clients;
@@ -7,56 +8,105 @@ public class CustomerClient
 {
 
     private readonly HttpClient _httpClient;
+    private readonly ILogger<CustomerClient> _logger;
 
-    public CustomerClient(HttpClient httpClient)
+    public CustomerClient(
+        ILogger<CustomerClient> logger,
+        HttpClient httpClient)
     {
         _httpClient = httpClient;
-        new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        };
+        _logger = logger;
     }
 
-    public async Task<List<Customer>> GetAllCustomerAsync()
+    public async Task<List<Customer>> GetAllAsync()
     {
-        var response = await _httpClient.GetAsync("api/customer");
-        response.EnsureSuccessStatusCode();
-        var jsonString = await response.Content.ReadAsStringAsync();
-        var customers = JsonSerializer.Deserialize<List<Customer>>(jsonString, new JsonSerializerOptions
+        try
         {
-            PropertyNameCaseInsensitive = true
-        });
-        return customers!;
+            var customers = await _httpClient.GetFromJsonAsync<List<Customer>>("api/customer");
+            return customers!;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching customers {Message}", ex.Message);
+            throw;
+        }
     }
 
-    public async Task<Customer> GetByIdAsync(Guid Id)
+    public async Task<Customer?> GetByIdAsync(Guid Id)
     {
-        var response = await _httpClient.GetAsync("api/customer");
-        response.EnsureSuccessStatusCode();
-        var jsonString = await response.Content.ReadAsStringAsync();
-        var customer = JsonSerializer.Deserialize<Customer>(jsonString, new JsonSerializerOptions
+        try
         {
-            PropertyNameCaseInsensitive = true
-        });
-        return customer!;
+            var customer = await _httpClient.GetFromJsonAsync<Customer>($"api/customer/{Id}");
+            return customer;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching customer with ID: {Id} {Message}", Id, ex.Message);
+            throw;
+        }
     }
 
-    public async Task<Customer> Create(Customer customer)
+    public async Task<Customer?> PostAsync(Customer customer)
     {
-        var jsonContent = new StringContent(
-            JsonSerializer.Serialize(customer),
-            System.Text.Encoding.UTF8,
-            "application/json");
-
-        var response = await _httpClient.PostAsync("api/customer", jsonContent);
-        response.EnsureSuccessStatusCode();
-
-        var jsonString = await response.Content.ReadAsStringAsync();
-        var createdCustomer = JsonSerializer.Deserialize<Customer>(jsonString, new JsonSerializerOptions
+        try
         {
-            PropertyNameCaseInsensitive = true
-        });
+            var response = await _httpClient.PostAsJsonAsync("api/customer", customer);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Failed to create customer. Status code: {StatusCode}", response.StatusCode);
+                return null;
+            }
 
-        return createdCustomer!;
+            var createdCustomer = await response.Content.ReadFromJsonAsync<Customer>();
+            if (createdCustomer == null)
+            {
+                _logger.LogWarning("Response content was null when creating customer.");
+            }
+
+            return createdCustomer;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Failed to create customer {message}", ex.Message);
+            throw;
+        }
+    }
+
+    public async Task<Customer?> PutAsync(Customer customer)
+    {
+        try
+        {
+            var response = await _httpClient.PutAsJsonAsync($"api/customer/{customer.Id}", customer);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Failed to update customer. Status code: {StatusCode}", response.StatusCode);
+                return null;
+            }
+            return customer;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Failed to update customer {message}", ex.Message);
+            throw;
+        }
+    }
+
+    public async Task<bool> DeleteAsync(Guid Id)
+    {
+        try
+        {
+            var response = await _httpClient.DeleteAsync($"api/customer/{Id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Failed to delete customer. Status code: {StatusCode}", response.StatusCode);
+                return false;
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Failed to delete customer {message}", ex.Message);
+            throw;
+        }
     }
 }

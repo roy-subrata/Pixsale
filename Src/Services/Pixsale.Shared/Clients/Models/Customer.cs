@@ -3,6 +3,7 @@ public record Customer(
     Guid Id,
     string Name,
     string Gender,
+    string NationalId,
     string Email,
     string Phone,
     string Address,

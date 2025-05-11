@@ -19,7 +19,7 @@ namespace Pixsale.Api.Controllers
             return Ok(await dbContext.Customers.ToListAsync());
         }
 
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
             return Ok(await dbContext.Customers.FindAsync(id));
@@ -32,15 +32,21 @@ namespace Pixsale.Api.Controllers
             {
                 Name = customer.Name,
                 Email = customer.Email,
+                NationalId = customer.NationalId,
                 Phone = customer.Phone,
                 Address = customer.Address,
+                City = customer.City,
+                State = customer.State,
+                Country = customer.Country,
+                Gender = customer.Gender,
+                ZipCode = customer.ZipCode
             };
             await dbContext.Customers.AddAsync(newCustomer);
             await dbContext.SaveChangesAsync();
             logger.LogInformation("Customer created with ID: {id}", newCustomer.Id);
             return CreatedAtAction(nameof(Get), new { newCustomer.Id }, newCustomer);
         }
-        [HttpPut("id")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCustomer customer)
         {
             logger.LogInformation("Updating customer with ID: {id}", id);
@@ -54,14 +60,21 @@ namespace Pixsale.Api.Controllers
                 return NotFound();
             }
             existingCustomer.Name = customer.Name;
+            existingCustomer.NationalId = customer.NationalId;
             existingCustomer.Email = customer.Email;
             existingCustomer.Phone = customer.Phone;
             existingCustomer.Address = customer.Address;
+            existingCustomer.City = customer.City;
+            existingCustomer.State = customer.State;
+            existingCustomer.Country = customer.Country;
+            existingCustomer.Gender = customer.Gender;
+            existingCustomer.ZipCode = customer.ZipCode;
+
             await dbContext.SaveChangesAsync();
             return NoContent();
         }
 
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             logger.LogInformation("Deleting customer with ID: {id}", id);

@@ -97,7 +97,7 @@
         if (this.CustomerModel is not null)
         {
             var customerClient = this.CustomerModel.toCustomerClient();
-            await CustomerClient.Create(customerClient);
+            await CustomerClient.PostAsync(customerClient);
         }
     }
 
@@ -117,6 +117,7 @@
         public string Address { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
         public string Zipcode { get; set; } = string.Empty;
         public string PhotoUrl { get; set; } = string.Empty;
         public decimal AccountBalance { get; set; }
@@ -124,15 +125,22 @@
 
       public  Clients.Models.Customer toCustomerClient()
         {
+
+
+
+
+
+
             return new Clients.Models.Customer(
                 this.Id,
                 this.Name,
                 this.Gender,
+                this.NationalId,
                 this.Email,
                 this.Phone,
                 this.Address,
                 this.City,
-                "",
+                this.State,
                 this.Country,
                 this.Zipcode
             );
