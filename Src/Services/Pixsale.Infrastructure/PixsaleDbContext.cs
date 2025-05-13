@@ -29,6 +29,7 @@ namespace Pixsale.Infrastructure
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<ProductLocation> ProductLocations { get; set; }
+ 
         public DbSet<BranchWarehouse> BranchWarehouses { get; set; }
 
 
@@ -37,6 +38,7 @@ namespace Pixsale.Infrastructure
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfiguration(new BranchWarehouseConfiguration());
+            modelBuilder.ApplyConfiguration(new PurchaseConfiguration());
 
             // Apply configurations for AuditableEntity
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())

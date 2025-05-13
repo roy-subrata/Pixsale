@@ -1,0 +1,95 @@
+﻿@page "/purchase"
+@using static Pixsale.Shared.Components.App.Purchase.PurchaseForm
+
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
+
+<div class="flex items-center space-x-3 text-xl font-semibold text-gray-800">
+	<button @onclick="GoBack" class="text-tata hover:text-blue-900 focus:outline-none">
+		←
+	</button>
+	<h2>Home</h2>
+</div>
+
+<div class="p-4">
+	<input type="text"
+     placeholder="Search"
+     class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+     @bind="searchText" />
+</div>
+
+<div class="px-4">
+	@foreach (var purchase in Purchases)
+	{
+		<div class="flex items-center justify-between bg-purple-100 p-4 rounded-lg mb-4">
+			<div class="flex items-center space-x-3">
+				<div>
+					<p class="text-sm font-semibold">@purchase.PurchaseDate</p>
+					<p class="text-xs text-gray-600">@purchase.Status</p>
+					<p class="text-xs text-gray-600">@purchase.TotalQty</p>
+				</div>
+			</div>
+			<div class="flex items-center space-x-4">
+				<p class="text-sm font-semibold">৳ 0</p>
+				<div class="relative">
+
+					<button @onclick="ToggleDropdown" class="text-2xl">⋮</button>
+
+					@if (IsDropdownVisible)
+					{
+						<div class="absolute right-0 mt-2 w-32 bg-white border border-gray-300 rounded shadow-lg">
+							<button @onclick="() => OnEdit(purchase)" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">edit</button>
+							<button @onclick="() => OnDetail(purchase)" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">details</button>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	}
+</div>
+
+<div class="fixed bottom-4 left-0 right-0 px-4">
+	<button @onclick="OnAddPurchase"
+			class="w-full bg-purple-700 text-white py-3 rounded-lg text-sm font-medium shadow-md hover:bg-purple-800">
+		Add New Purchase +
+	</button>
+</div>
+
+@code {
+	protected List<PurchaseCardVm> Purchases = new();
+	protected string searchText = string.Empty;
+	private bool IsDropdownVisible { get; set; } = false;
+	private void ToggleDropdown()
+	{
+		IsDropdownVisible = !IsDropdownVisible;
+	}
+
+	private void OnEdit(PurchaseCardVm purchase)
+	{
+		NavigationManager.NavigateTo($"/purchase-form/{purchase.Id}");
+	}
+
+	private void OnDetail(PurchaseCardVm purchase)
+	{
+		NavigationManager.NavigateTo($"/purchase/{purchase.Id}");
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		var httpClient = HttpClientFactory.CreateClient("PurchaseApi");
+		var purchases = await httpClient.GetFromJsonAsync<List<PurchaseCardVm>>("api/purchase");
+		if (purchases == null)
+		{
+			purchases = new List<PurchaseCardVm>();
+		}
+		Purchases = purchases
+		.Select(purchase => new PurchaseCardVm(purchase.Id, purchase.PurchaseDate, purchase.Status, purchase.TotalQty))
+		.ToList();
+	}
+
+	private void OnAddPurchase() => NavigationManager.NavigateTo("/purchase-form");
+
+	private void GoBack() => NavigationManager.NavigateTo("/");
+
+	public record PurchaseCardVm(Guid Id, DateTime PurchaseDate, PurchaseStatus Status, int TotalQty);
+}

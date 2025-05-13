@@ -55,6 +55,21 @@ namespace Pixsale.Shared.Clients
                 var apiConfig = deviceInfoService.GetApiConfiguration(); // Use async-safe code in production
                 client.BaseAddress = new Uri(apiConfig.BaseUrl);
             });
+            services.AddHttpClient("SupplierApi", (serviceProvider, client) =>
+            {
+                var scope = serviceProvider.CreateScope();
+                var deviceInfoService = scope.ServiceProvider.GetRequiredService<IDeviceInfoService>();
+                var apiConfig = deviceInfoService.GetApiConfiguration(); // Use async-safe code in production
+                client.BaseAddress = new Uri(apiConfig.BaseUrl);
+            });
+
+            services.AddHttpClient("PurchaseApi", (serviceProvider, client) =>
+            {
+                var scope = serviceProvider.CreateScope();
+                var deviceInfoService = scope.ServiceProvider.GetRequiredService<IDeviceInfoService>();
+                var apiConfig = deviceInfoService.GetApiConfiguration(); // Use async-safe code in production
+                client.BaseAddress = new Uri(apiConfig.BaseUrl);
+            });
             return services;
         }
     }

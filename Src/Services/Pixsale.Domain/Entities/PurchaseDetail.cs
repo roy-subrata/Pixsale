@@ -9,5 +9,6 @@
         public decimal VATRate { get; set; } = 0; // VAT rate (e.g., 0.05 for 5%)
         public decimal VATAmount { get; set; } = 0; // VAT amount for this line item
         public decimal TotalAmount { get; set; } = 0; // Total amount (UnitPrice * Quantity + VATAmount)
+        public Product Product { get; set; } = null!;
     }
 }
