@@ -14,12 +14,27 @@ namespace Pixsale.Api.Controllers
         ) : Controller
     {
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> FindAllAsync(string? name, int page = 0, int pageSize = 50)
         {
-            var products = await dbContext.Products.
-                
-                Include(p => p.Category)
-                .Include(p=>p.Unit)
+            var query = dbContext.Products.AsQueryable();
+            if (page < 0 || pageSize <= 0)
+            {
+                return BadRequest("Page and pageSize must be greater than zero.");
+            }
+            if (string.IsNullOrEmpty(name))
+            {
+                logger.LogInformation("Fetching all products from the database.");
+            }
+            else
+            {
+                query = query.Where(s => s.Name.ToLower().Contains(name.ToLower()));
+                logger.LogInformation("Searching for products with name: {name}", name);
+            }
+
+            var products = await query.Include(p => p.Category)
+                .Include(p => p.Unit)
+                .Skip(page * pageSize)
+                .Take(pageSize)
                 .Select(product => new GetProduct(
                     product.Id,
                     product.Name,
@@ -72,8 +87,8 @@ namespace Pixsale.Api.Controllers
             }
             existingProduct.Name = Product.Name;
             existingProduct.LocalName = Product.LocalName;
-            existingProduct.Brand=Product.Brand;
-            existingProduct.UnitId=Product.UnitId;
+            existingProduct.Brand = Product.Brand;
+            existingProduct.UnitId = Product.UnitId;
             existingProduct.Description = Product.Description;
             existingProduct.CategoryId = Product.CategoryId;
             await dbContext.SaveChangesAsync();
